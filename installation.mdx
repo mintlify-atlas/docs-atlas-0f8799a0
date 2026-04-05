@@ -1,0 +1,179 @@
+---
+title: "Installation"
+description: "Install Yagua on Windows or Linux, or run it directly from source on any Python 3.13+ environment."
+---
+
+## System requirements
+
+Before installing, make sure your machine meets the recommended specifications. Yagua processes images locally, so adequate RAM is important for large batches.
+
+| Component | Requirement |
+|-----------|-------------|
+| OS | Windows 10/11 or Linux x64 |
+| CPU | 4 cores or more recommended |
+| RAM | 8 GB minimum |
+| Disk space | 500 MB free + space for output files |
+
+<Note>
+macOS support is planned for a future release. For now, macOS users can run Yagua from source.
+</Note>
+
+## Batch limits
+
+Yagua enforces per-operation batch limits to maintain performance:
+
+| Module | Limit |
+|--------|-------|
+| Compress, Convert, Resize, Rename, LQIP | 100 images per batch |
+| Background removal | 10 images per batch |
+| EXIF metadata cleaning | 100 images per batch |
+
+---
+
+## Install Yagua
+
+<Tabs>
+  <Tab title="Windows">
+    Download and run the installer from GitHub Releases. No additional dependencies are required.
+
+    <Steps>
+      <Step title="Download the installer">
+        Go to the [Yagua releases page](https://github.com/GuilleBouix/Yagua-Image-Processor/releases) and download `Yagua_Setup_1.X.X.zip` from the latest release.
+      </Step>
+      <Step title="Extract the archive">
+        Right-click the downloaded `.zip` file and select **Extract All**, then choose a destination folder.
+      </Step>
+      <Step title="Run the installer">
+        Open the extracted folder and double-click `Yagua_Setup_1.X.X.exe`. Follow the on-screen installation steps.
+      </Step>
+      <Step title="Launch Yagua">
+        Once installation is complete, open Yagua from the desktop shortcut or the Start menu.
+      </Step>
+    </Steps>
+
+    <Tip>
+      Windows may show a SmartScreen prompt because the installer is not code-signed. Click **More info** then **Run anyway** to proceed.
+    </Tip>
+  </Tab>
+
+  <Tab title="Linux">
+    Yagua is distributed as a self-contained AppImage for Linux. No installation is required — just download, make executable, and run.
+
+    <Steps>
+      <Step title="Download the AppImage">
+        Go to the [Yagua releases page](https://github.com/GuilleBouix/Yagua-Image-Processor/releases) and download `Yagua-1.X.X-x86_64.AppImage` from the latest release.
+      </Step>
+      <Step title="Make the file executable">
+        Open a terminal in the directory where you downloaded the file and run:
+
+        ```bash
+        chmod +x Yagua-1.X.X-x86_64.AppImage
+        ```
+      </Step>
+      <Step title="Run the AppImage">
+        ```bash
+        ./Yagua-1.X.X-x86_64.AppImage
+        ```
+      </Step>
+    </Steps>
+
+    ### Linux dependencies
+
+    The AppImage is self-contained and usually runs without extra setup. If you see errors on launch, install the following packages:
+
+    <Tabs>
+      <Tab title="Debian / Ubuntu">
+        ```bash
+        sudo apt install libfuse2 libgl1 libglib2.0-0
+        ```
+      </Tab>
+      <Tab title="Fedora">
+        ```bash
+        sudo dnf install fuse-libs mesa-libGL glib2
+        ```
+      </Tab>
+      <Tab title="Arch">
+        ```bash
+        sudo pacman -S fuse2 mesa glib2
+        ```
+      </Tab>
+    </Tabs>
+
+    <Warning>
+      AppImages require FUSE to mount. If `libfuse2` is not available and cannot be installed, you can extract the AppImage and run it directly:
+
+      ```bash
+      ./Yagua-1.X.X-x86_64.AppImage --appimage-extract
+      ./squashfs-root/AppRun
+      ```
+    </Warning>
+  </Tab>
+
+  <Tab title="From source">
+    Run Yagua directly from the source code. This method works on any platform with Python 3.13 or later, including macOS.
+
+    **Prerequisites:** [Python 3.13+](https://www.python.org/downloads/) and `git` must be installed.
+
+    <Steps>
+      <Step title="Clone the repository">
+        ```bash
+        git clone https://github.com/GuilleBouix/Yagua-Image-Processor.git
+        cd Yagua-Image-Processor
+        ```
+      </Step>
+      <Step title="Create and activate a virtual environment">
+        <Tabs>
+          <Tab title="macOS / Linux">
+            ```bash
+            python3 -m venv .venv
+            source .venv/bin/activate
+            ```
+          </Tab>
+          <Tab title="Windows (PowerShell)">
+            ```powershell
+            python -m venv .venv
+            .venv\Scripts\Activate.ps1
+            ```
+          </Tab>
+          <Tab title="Windows (Command Prompt)">
+            ```cmd
+            python -m venv .venv
+            .venv\Scripts\activate.bat
+            ```
+          </Tab>
+        </Tabs>
+      </Step>
+      <Step title="Install dependencies">
+        ```bash
+        pip install -r requirements.txt
+        ```
+
+        <Note>
+          The full dependency set includes PyTorch, ONNX Runtime, and EasyOCR, which are required for AI-powered features. Installation may take several minutes depending on your connection speed.
+        </Note>
+      </Step>
+      <Step title="Run the application">
+        ```bash
+        python main.py
+        ```
+      </Step>
+    </Steps>
+
+    <Tip>
+      Keep the virtual environment activated whenever you run Yagua from source. Deactivate it with `deactivate` when you're done.
+    </Tip>
+  </Tab>
+</Tabs>
+
+---
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Process your first batch of images in a few steps
+  </Card>
+  <Card title="Core features" icon="images" href="/features/compress">
+    Explore compression, conversion, resizing, and more
+  </Card>
+</CardGroup>

@@ -1,0 +1,92 @@
+---
+title: 'Compression'
+description: 'Reduce image file sizes while preserving visual quality. Supports batch processing of up to 100 images across all common formats.'
+---
+
+Compression reduces the file size of your images by applying format-specific encoding optimizations. Yagua processes each image in place — keeping the original format — and falls back to the original file if the compressed result would actually be larger.
+
+## Supported formats
+
+JPEG, PNG, WEBP, AVIF, HEIC, BMP, TIFF, GIF, ICO
+
+## How batch compression works
+
+<Steps>
+  <Step title="Add images">
+    Drag and drop images into the file list, or use the file picker. You can add up to **100 images** per batch.
+  </Step>
+  <Step title="Set quality">
+    Adjust the quality slider. The range is **10–100**, and the default is **85**. Lower values produce smaller files with more visible compression artifacts.
+  </Step>
+  <Step title="Choose output folder">
+    Select where the compressed files will be saved. Each output file gets the original name plus a suffix (default: `_comprimido`).
+  </Step>
+  <Step title="Configure options">
+    Optionally enable **Strip EXIF metadata** to remove camera and location data from the output files.
+  </Step>
+  <Step title="Run compression">
+    Click **Compress**. The app processes each image and displays a summary when done.
+  </Step>
+</Steps>
+
+## Quality control
+
+<Tabs>
+  <Tab title="JPEG">
+    Uses Pillow's `quality` parameter (10–100) with progressive encoding and optimization enabled. EXIF data can be preserved or stripped.
+  </Tab>
+  <Tab title="PNG">
+    PNG is lossless — the quality slider does not apply. Compression uses maximum `compress_level=9` with palette reduction to 256 adaptive colors.
+  </Tab>
+  <Tab title="WEBP">
+    Uses the `quality` parameter (10–100) with `method=6` (slowest, best compression).
+  </Tab>
+  <Tab title="AVIF / HEIC">
+    Uses the `quality` parameter (10–100) passed directly to the encoder.
+  </Tab>
+  <Tab title="ICO">
+    Quality parameter does not apply. Output includes multiple icon sizes automatically: 16×16, 32×32, 48×48, 64×64, 128×128, and 256×256 (up to the source image's smallest dimension).
+  </Tab>
+  <Tab title="BMP / GIF / TIFF">
+    These formats use basic encoding with no quality parameter.
+  </Tab>
+</Tabs>
+
+## EXIF stripping
+
+When **Strip EXIF** is enabled (the default), all embedded metadata — including camera model, GPS coordinates, and timestamps — is removed from the output. For JPEG images specifically, you can choose to preserve the original EXIF block if you need to retain that information.
+
+<Note>
+  EXIF stripping applies only to JPEG. Other formats do not embed EXIF in the same way and are not affected by this option.
+</Note>
+
+## Smart size protection
+
+After compressing each image, Yagua compares the output file size to the original. If the compressed file is **equal to or larger** than the original, the original file is copied to the output path unchanged. This ensures you never end up with a result that is worse than what you started with.
+
+## Output file naming
+
+Output files are saved as:
+
+```
+<original-name><suffix>.<original-extension>
+```
+
+For example, compressing `photo.jpg` with the default suffix produces `photo_comprimido.jpg`. If a file with that name already exists in the output folder, Yagua automatically appends a number to avoid overwriting it.
+
+## Batch statistics
+
+After a batch run, the app reports:
+
+| Stat | Description |
+|---|---|
+| Processed | Number of images compressed successfully |
+| Errors | Number of images that failed |
+| Original size | Total size of all input files |
+| Compressed size | Total size of all output files |
+| Reduction | Overall size reduction as a percentage |
+| Conflicts | Number of output filenames that were renamed to avoid collisions |
+
+<Tip>
+  For JPEG images, a quality of 80–85 is a good starting point. It typically reduces file size by 40–60% with no perceptible quality loss at normal viewing sizes.
+</Tip>

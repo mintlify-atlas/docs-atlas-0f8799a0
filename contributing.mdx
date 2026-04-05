@@ -1,0 +1,97 @@
+---
+title: 'Contributing'
+description: 'How to report bugs, suggest features, and submit code contributions to Yagua.'
+---
+
+Yagua is open source under the MIT License. Contributions of all kinds are welcome — bug reports, feature ideas, code improvements, and documentation fixes.
+
+**Repository:** [github.com/GuilleBouix/Yagua-Image-Processor](https://github.com/GuilleBouix/Yagua-Image-Processor)
+
+---
+
+## Reporting bugs and requesting features
+
+Open an issue on GitHub for:
+
+- **Bugs:** Unexpected behavior, crashes, or output errors. Include your OS, Python version (if running from source), and steps to reproduce.
+- **Feature ideas:** New modules, UI improvements, or workflow enhancements. Describe the use case and what problem it solves.
+
+---
+
+## Submitting a pull request
+
+<Steps>
+  <Step title="Fork and clone the repository">
+    Fork the repo on GitHub, then clone your fork locally:
+    ```bash
+    git clone https://github.com/YOUR_USERNAME/Yagua-Image-Processor.git
+    cd Yagua-Image-Processor
+    ```
+  </Step>
+  <Step title="Set up the development environment">
+    Create a virtual environment and install dependencies:
+    ```bash
+    python -m venv .venv
+    source .venv/bin/activate   # Linux/macOS
+    .venv\Scripts\activate      # Windows
+    pip install -r requirements.txt
+    ```
+  </Step>
+  <Step title="Create a branch">
+    Use a descriptive branch name:
+    ```bash
+    git checkout -b fix/special-characters-in-paths
+    ```
+  </Step>
+  <Step title="Make your changes">
+    Keep pull requests focused. One feature or fix per PR makes review faster.
+
+    Follow the existing code style:
+    - The codebase follows **PEP 8** conventions.
+    - Each module is organized into `frame.py`, `services.py`, and `state.py` under `app/ui/frames/<module>/`.
+    - Processing logic lives in `app/modules/`.
+    - UI strings belong in the translation dictionaries under `app/translations/`.
+    - Use the `unique_output_path` helper from `app/modules/output.py` for all file output to prevent overwriting existing files.
+  </Step>
+  <Step title="Run tests">
+    Yagua includes pytest test suites covering core processing logic and UI behavior. Run all tests before submitting:
+    ```bash
+    pytest
+    ```
+    Make sure all tests pass. If you are adding new functionality, include tests for it.
+  </Step>
+  <Step title="Open a pull request">
+    Push your branch to your fork and open a PR against the main repository. Describe what changed and why.
+  </Step>
+</Steps>
+
+---
+
+## Code style and structure
+
+<CardGroup cols={2}>
+  <Card title="Processing modules" icon="cpu">
+    New image processing features go in `app/modules/`. Keep business logic separate from UI code.
+  </Card>
+  <Card title="UI frames" icon="layout">
+    Each module has its own directory under `app/ui/frames/` with `frame.py`, `services.py`, and `state.py`.
+  </Card>
+  <Card title="Translations" icon="languages">
+    All user-facing strings must have entries in `app/translations/en.py`, `es.py`, and `pt.py`. Do not hardcode strings in UI files.
+  </Card>
+  <Card title="Settings persistence" icon="settings">
+    User preferences are saved to `user_settings.json` via the helpers in `app/utils/settings.py`. Do not write settings directly from UI code.
+  </Card>
+</CardGroup>
+
+---
+
+## License
+
+Yagua is released under the **MIT License**. By contributing, you agree that your contributions will be licensed under the same terms. See the `LICENSE` file in the repository for the full text.
+
+---
+
+## Supporting the project
+
+If Yagua has been useful to you, consider leaving a star on the GitHub repository — it helps other people find the project.

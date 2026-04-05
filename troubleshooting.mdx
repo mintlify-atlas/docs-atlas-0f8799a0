@@ -1,0 +1,158 @@
+---
+title: 'Troubleshooting'
+description: 'Solutions for common issues with Yagua, including model downloads, Linux compatibility, and batch processing problems.'
+---
+
+<AccordionGroup>
+
+  <Accordion title="Background removal model is not downloading">
+    The Remove Background module uses the `u2netp` ONNX model (~4 MB), which is downloaded automatically by `rembg` on the first run. The model is saved to:
+
+    ```
+    ~/.u2net/u2netp.onnx
+    ```
+
+    **If the download fails or hangs:**
+
+    1. Check your internet connection. The model is fetched from a public URL on first use.
+    2. Verify that the `~/.u2net/` directory exists and is writable:
+       ```bash
+       ls ~/.u2net/
+       ```
+    3. If the file exists but is incomplete (less than ~4 MB), delete it and restart the app:
+       ```bash
+       rm ~/.u2net/u2netp.onnx
+       ```
+    4. Try downloading the model manually using Python:
+       ```python
+       from rembg import new_session
+       new_session('u2netp')
+       ```
+
+    The app shows a "Downloading model..." status message while the download is in progress. Once the model is present, it is reused for all subsequent sessions without re-downloading.
+
+    <Note>
+      The UI displays a non-blocking loader during model download. The rest of the app remains usable while the model loads.
+    </Note>
+  </Accordion>
+
+  <Accordion title="Linux AppImage does not launch">
+    If the AppImage fails to start on Linux, the most common causes are missing system libraries.
+
+    **Step 1: Make the AppImage executable**
+
+    ```bash
+    chmod +x Yagua-1.X.X-x86_64.AppImage
+    ./Yagua-1.X.X-x86_64.AppImage
+    ```
+
+    **Step 2: Install missing libraries**
+
+    If you see errors about FUSE, OpenGL, or GLib, install the required packages:
+
+    ```bash
+    sudo apt install libfuse2 libgl1 libglib2.0-0
+    ```
+
+    | Error message | Missing library |
+    |---------------|----------------|
+    | `fuse: device not found` or `FUSE library not found` | `libfuse2` |
+    | `libGL.so.1: cannot open shared object file` | `libgl1` |
+    | `libglib-2.0.so.0: cannot open shared object file` | `libglib2.0-0` |
+
+    **Step 3: Run from the terminal**
+
+    Always launch the AppImage from a terminal the first time so you can see any error output:
+
+    ```bash
+    ./Yagua-1.X.X-x86_64.AppImage
+    ```
+
+    <Warning>
+      On Ubuntu 22.04 and later, `libfuse2` is not installed by default. This is the most frequent cause of AppImage launch failures.
+    </Warning>
+  </Accordion>
+
+  <Accordion title="Images are not loading">
+    If images fail to load or you see errors when selecting files, the most common cause is **special characters in file paths** (accented letters, spaces, symbols, or non-ASCII characters in folder or file names).
+
+    **Workaround:**
+
+    1. Move your images to a folder with a plain ASCII path, for example:
+       ```
+       C:\Users\user\images\batch\
+       /home/user/images/
+       ```
+    2. Avoid folder names with characters like `á`, `ñ`, `ü`, `@`, `#`, `&`, or spaces where possible.
+    3. Retry loading the images from the new location.
+
+    <Note>
+      Robust handling of special characters in file paths is actively being improved across all modules in upcoming releases.
+    </Note>
+  </Accordion>
+
+  <Accordion title="App freezes or becomes unresponsive during large batches">
+    Yagua runs all processing operations in background threads, so the UI should remain responsive during a batch job. If the app appears to freeze:
+
+    - **Stay within the batch limits.** Each module enforces a maximum (100 images for most, 10 for Remove Background). Exceeding these limits is prevented by the app, but approaching them on low-end hardware can cause slowdowns.
+    - **Remove Background is the most intensive module.** AI inference runs on CPU via ONNX Runtime. Processing 10 images may take several minutes depending on image size and CPU speed. The loader indicator inside the module confirms processing is still running — do not force-close the app.
+    - **Do not load high-resolution images** (e.g., 20+ MP RAW exports) in large batches. Resize them first if needed.
+    - **Check available RAM.** Pillow loads full images into memory. With 8 GB RAM and a batch of 100 large images, memory pressure can cause slowdowns.
+
+    <Tip>
+      If a batch is taking a long time, check the **Logs** tab in Settings to confirm the operation is progressing and no errors have occurred.
+    </Tip>
+  </Accordion>
+
+  <Accordion title="Output files conflict with existing files">
+    Yagua never silently overwrites existing output files. Instead, it uses the `unique_output_path` function to automatically rename conflicting files by appending a numeric suffix.
+
+    **Example:** If `photo_comprimido.jpg` already exists in the output folder, the new file is saved as `photo_comprimido_1.jpg`, then `photo_comprimido_2.jpg`, and so on.
+
+    The operation summary shown after processing reports how many files were renamed due to conflicts (e.g., *"3 renamed conflicts"*).
+
+    If you want clean output without numbered suffixes, either:
+    - Delete the existing output files before running the batch.
+    - Choose a different output folder.
+
+    <Note>
+      This behavior applies to all processing modules, including Compress, Convert, Resize, Rename, LQIP, and Remove Background.
+    </Note>
+  </Accordion>
+
+  <Accordion title="rembg or torch dependency errors on first install">
+    When installing from source, `rembg` pulls in ONNX Runtime and several other packages. If you see errors during `pip install -r requirements.txt`:
+
+    **Common issues:**
+
+    1. **`torch` not found or incompatible:** `rembg` 2.x uses ONNX Runtime rather than PyTorch directly. If a `torch`-related error appears, make sure you are installing the exact version pinned in `requirements.txt`.
+
+    2. **`onnxruntime` install fails:** On some Linux distributions, you may need to install build tools first:
+       ```bash
+       sudo apt install build-essential python3-dev
+       ```
+
+    3. **Virtual environment not activated:** Always install dependencies inside an activated virtual environment:
+       ```bash
+       python -m venv .venv
+       source .venv/bin/activate   # Linux/macOS
+       .venv\Scripts\activate      # Windows
+       pip install -r requirements.txt
+       ```
+
+    4. **Python version mismatch:** Yagua requires Python 3.13+. Check your version:
+       ```bash
+       python --version
+       ```
+
+    If `rembg` is not installed, the Remove Background module shows an in-app message with the install command:
+    ```bash
+    pip install rembg
+    ```
+
+    <Warning>
+      Do not install `rembg` globally on your system Python. Always use a virtual environment to avoid dependency conflicts with other projects.
+    </Warning>
+  </Accordion>
+
+</AccordionGroup>

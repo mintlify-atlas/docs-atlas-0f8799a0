@@ -1,0 +1,105 @@
+---
+title: 'Watermark'
+description: 'Apply an image watermark to one or many photos with full control over position, scale, opacity, and margin.'
+---
+
+The Watermark module overlays a watermark image — such as a logo or signature — onto your base images. A real-time preview lets you fine-tune the placement before committing to a batch export.
+
+## How it works
+
+Yagua uses OpenCV for alpha-compositing. Both the base image and the watermark are loaded as four-channel BGRA arrays. The watermark is scaled to a fraction of the base image width, then blended pixel-by-pixel using the watermark's own alpha channel combined with the global opacity slider. The result is saved to your chosen output folder.
+
+<Note>
+  Watermarks must be image files (PNG with transparency is recommended for best results). Text watermarks are not currently supported — create your text as a PNG with a transparent background in any image editor.
+</Note>
+
+## Configuration
+
+### Position
+
+Five anchor points are available:
+
+| Value | Description |
+|-------|-------------|
+| `top-left` | Upper-left corner |
+| `top-right` | Upper-right corner |
+| `bottom-left` | Lower-left corner |
+| `bottom-right` | Lower-right corner (default) |
+| `center` | Centred on the image |
+
+### Scale
+
+Controls the watermark width as a **fraction of the base image width** (range `0.05` – `1.0`, default `0.25`).
+
+- `0.25` → watermark occupies 25 % of the image width
+- `1.0` → watermark stretches to the full image width
+
+Height is scaled proportionally. The watermark is automatically clamped so it never exceeds the base image dimensions.
+
+### Opacity
+
+Controls how transparent the watermark appears (range `0.0` – `1.0`, default `0.6`).
+
+- `0.0` → completely invisible
+- `1.0` → fully opaque (ignores the watermark's own alpha for blending purposes, but does not affect edge transparency)
+
+### Margin
+
+Pixel offset from the edge defined by the chosen position (default `20` px). Applies only to corner positions; centered watermarks ignore the margin.
+
+## Real-time preview
+
+<Steps>
+  <Step title="Select a base image">
+    Load a single image to use as the preview canvas.
+  </Step>
+  <Step title="Select a watermark image">
+    Choose your watermark file (PNG with transparency strongly recommended).
+  </Step>
+  <Step title="Adjust the controls">
+    Move the position selector, scale slider, opacity slider, and margin field. The preview canvas updates immediately via `aplicar_watermark_np`, which operates entirely in memory — no files are written during preview.
+  </Step>
+  <Step title="Confirm settings">
+    Once satisfied with the preview, proceed to single export or batch export.
+  </Step>
+</Steps>
+
+## Single image export
+
+Click **Apply** to write the watermarked image to the output folder. The output file is named `<original_stem>_wm<ext>` by default (e.g. `photo_wm.jpg`).
+
+## Batch watermarking
+
+<Steps>
+  <Step title="Add images">
+    Select multiple images from the file picker. All images in the batch share the same watermark file and settings.
+  </Step>
+  <Step title="Set output folder">
+    Choose a destination folder. Each result is saved as `<original>_wm<ext>`.
+  </Step>
+  <Step title="Run batch">
+    Click **Apply to all**. Yagua processes each image sequentially and reports the results.
+  </Step>
+</Steps>
+
+<Tip>
+  For clean results on varied image sizes, use a scale of `0.15`–`0.25` so the watermark is visible but not overwhelming on both small and large images.
+</Tip>
+
+## Results summary
+
+After a batch run, Yagua shows:
+
+| Counter | Meaning |
+|---------|---------|
+| `ok` | Images successfully watermarked |
+| `errores` | Images that failed (corrupt file, unreadable format, etc.) |
+| `archivos` | List of output file paths |
+
+## Format support
+
+The module loads images via OpenCV (`cv2.imread` with `IMREAD_UNCHANGED`). Any format OpenCV can read is supported as a base image. For the watermark, **PNG with an alpha channel** gives the best compositing results because the transparent areas are preserved exactly.
+
+<Warning>
+  If the watermark image cannot be loaded (missing file, unsupported format), the operation fails for that image and the error is logged. The rest of the batch continues.
+</Warning>

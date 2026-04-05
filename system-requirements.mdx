@@ -1,0 +1,92 @@
+---
+title: 'System requirements'
+description: 'Supported operating systems, hardware minimums, and per-module batch processing limits for Yagua.'
+---
+
+## Supported platforms
+
+| Platform | Status |
+|----------|--------|
+| Windows 10 / 11 | Supported |
+| Linux x64 (AppImage) | Supported |
+| macOS | Coming soon |
+
+<Note>
+  The Windows installer is distributed as `Yagua_Setup_1.X.X.exe`. The Linux build is a portable AppImage (`Yagua-1.X.X-x86_64.AppImage`) that requires no installation.
+</Note>
+
+---
+
+## Hardware
+
+| Component | Minimum / Recommended |
+|-----------|----------------------|
+| CPU | 4+ cores recommended for large batches |
+| RAM | 8 GB minimum |
+| Disk | 500 MB free space + additional space for output files |
+
+Background removal and batch operations are processed in background threads to avoid blocking the UI, but more CPU cores and RAM directly improve throughput when working with large image sets.
+
+---
+
+## Batch processing limits
+
+Each module enforces a maximum number of images per batch to maintain stable performance.
+
+| Module | Batch limit |
+|--------|-------------|
+| Compress | 100 images |
+| Convert | 100 images |
+| Resize | 100 images |
+| Batch Rename | 100 images |
+| LQIP / Base64 | 100 images |
+| EXIF Metadata (clean batch) | 100 images |
+| Remove Background | 10 images |
+
+<Warning>
+  The **Remove Background** module is limited to 10 images per batch because AI inference with the `u2netp` model is significantly more resource-intensive than other operations. Loading more than 10 images will trigger the limit warning and only the first 10 will be processed.
+</Warning>
+
+When you load more files than the limit allows, Yagua displays a message indicating how many were loaded versus the total you selected, for example: *"Loaded 100 of 143 images (maximum limit)."*
+
+---
+
+## Linux dependencies
+
+The AppImage usually runs without additional setup, but some Linux distributions may require the following libraries:
+
+```bash
+sudo apt install libfuse2 libgl1 libglib2.0-0
+```
+
+| Library | Purpose |
+|---------|---------|
+| `libfuse2` | Required by the AppImage runtime to mount the squashfs filesystem |
+| `libgl1` | OpenGL support needed by the UI rendering layer |
+| `libglib2.0-0` | Core GLib runtime used by GTK/GUI dependencies |
+
+<Tip>
+  On Ubuntu 22.04+, `libfuse2` is not installed by default. If the AppImage fails to launch with a FUSE-related error, installing `libfuse2` is the first thing to try.
+</Tip>
+
+---
+
+## Python / source install requirements
+
+If you are running Yagua from source, you need:
+
+- **Python 3.13+**
+- Dependencies installed via `pip install -r requirements.txt`
+
+Key packages used:
+
+| Package | Version | Role |
+|---------|---------|------|
+| CustomTkinter | 5.2.2 | Desktop UI framework |
+| Pillow | 12.1.1 | Image processing |
+| piexif | 1.1.3 | EXIF metadata read/write |
+| rembg | 2.0.73 | AI background removal |
+
+<Note>
+  `rembg` pulls in ONNX Runtime as a dependency. The `u2netp` model (~4 MB) is downloaded automatically to `~/.u2net/u2netp.onnx` on the first background removal run.
+</Note>

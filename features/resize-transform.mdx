@@ -1,0 +1,134 @@
+---
+title: 'Resize and transforms'
+description: 'Resize images by pixel dimensions, percentage, or preset. Rotate, flip, crop, and add canvas padding — individually or in batch.'
+---
+
+Yagua provides two related tools on the same screen: **Resize** (change dimensions) and **Transform** (rotate, flip, crop, canvas). Both support batch processing and preserve the original file format.
+
+## Resize
+
+### Resize modes
+
+<Tabs>
+  <Tab title="By pixels">
+    Enter a target **width**, **height**, or both.
+
+    - If you enter only a width, the height is calculated proportionally.
+    - If you enter only a height, the width is calculated proportionally.
+    - If you enter both, the image is resized to exactly those dimensions (aspect ratio is not preserved unless you enable the **Keep ratio** option).
+
+    All resizing uses the LANCZOS resampling filter for high quality results.
+  </Tab>
+  <Tab title="By percentage">
+    Enter a percentage value (e.g., `50` to reduce to half size, `200` to double).
+
+    Both dimensions are scaled by the same percentage, so the aspect ratio is always preserved.
+  </Tab>
+  <Tab title="Presets">
+    Choose a named preset from the dropdown. Presets cover common social media and web dimensions:
+
+    | Category | Examples |
+    |---|---|
+    | Instagram | Post 1:1 (1080×1080), Story 9:16 (1080×1920) |
+    | Facebook | Post (1200×630), Cover (851×315) |
+    | Twitter / X | Post 16:9 (1200×675), Header 3:1 (1500×500) |
+    | YouTube | Thumbnail (1280×720), Channel art (2560×1440) |
+    | LinkedIn | Post (1200×627), Personal cover (1584×396) |
+    | TikTok / WhatsApp | Video 9:16 (1080×1920) |
+    | Pinterest | Standard pin 2:3 (1000×1500) |
+    | Web | OG image (1200×630) |
+    | Resolutions | HD 720p, Full HD 1080p, 2K, 4K UHD |
+    | Icons | Favicon 32×32, 256×256, 512×512, Apple touch 180×180 |
+
+    Presets always resize to exact dimensions, ignoring aspect ratio.
+  </Tab>
+</Tabs>
+
+### Batch resize
+
+<Steps>
+  <Step title="Add images">
+    Drag images into the file list or use the file picker.
+  </Step>
+  <Step title="Choose resize mode">
+    Select pixels, percentage, or a preset. Configure the target dimensions.
+  </Step>
+  <Step title="Choose output folder">
+    Output files are saved with the suffix `_redim` appended to the original filename.
+  </Step>
+  <Step title="Resize">
+    Click **Resize**. The app reports successes, errors, and any filename conflicts.
+  </Step>
+</Steps>
+
+## Crop
+
+Crop removes pixels from the edges of an image. Yagua supports crop by **aspect ratio** or by **custom coordinates**.
+
+### Aspect ratio crop
+
+Choose a ratio from the dropdown. The crop box is centered on the image automatically:
+
+| Ratio | Use case |
+|---|---|
+| 1:1 | Square (social media posts) |
+| 4:3 | Standard photo |
+| 16:9 | Widescreen video |
+| 9:16 | Portrait video / stories |
+| 3:2 | DSLR standard |
+| 21:9 | Ultrawide / cinematic |
+
+Output files are saved with the suffix `_crop`.
+
+### Canvas (add padding)
+
+Canvas mode expands the image to a target size by adding padding around it. The image is centered by default. You can set the padding color to:
+
+- **White** — solid white border
+- **Black** — solid black border
+- **Transparent** — transparent padding (only available if the source format supports transparency: PNG, WEBP, GIF, TIFF, HEIC)
+
+If the image is larger than the target canvas size, it is scaled down to fit first using LANCZOS resampling.
+
+Output files are saved with the suffix `_canvas`.
+
+## Image transforms
+
+Transforms apply geometric operations to images without changing their dimensions (except rotation with expand).
+
+<CardGroup cols={2}>
+  <Card title="Rotate 90° left" icon="rotate-ccw">
+    Rotates the image 90 degrees counter-clockwise. The canvas expands to fit the new orientation.
+  </Card>
+  <Card title="Rotate 90° right" icon="rotate-cw">
+    Rotates the image 90 degrees clockwise. The canvas expands to fit.
+  </Card>
+  <Card title="Rotate 180°" icon="refresh-cw">
+    Flips the image upside down.
+  </Card>
+  <Card title="Flip horizontal" icon="flip-horizontal">
+    Mirrors the image left-to-right (mirror effect).
+  </Card>
+  <Card title="Flip vertical" icon="flip-vertical">
+    Mirrors the image top-to-bottom.
+  </Card>
+  <Card title="Free rotation" icon="move">
+    Rotate by any angle. Corners outside the original frame are filled with black (or transparent for images with an alpha channel).
+  </Card>
+</CardGroup>
+
+### EXIF-based auto-rotation
+
+Cameras and phones store orientation information in EXIF metadata. When **Correct EXIF orientation** is enabled, Yagua reads this tag and rotates the image to match the intended display orientation before applying any other transforms.
+
+<Tip>
+  Enable EXIF correction when working with photos taken on a smartphone. Many phones save images rotated 90° in the file and rely on EXIF to tell viewers how to display them. Without correction, the image may look sideways after processing.
+</Tip>
+
+### Batch transforms
+
+All transform operations run in batch. Output files are saved with the suffix `_transform`. You can combine multiple transforms in a single pass — for example, correct EXIF orientation and flip horizontal at the same time.
+
+<Note>
+  Transforms preserve the original file format and handle transparency correctly. When a JPEG output is required and the image has transparency, transparent areas are composited onto a white background.
+</Note>

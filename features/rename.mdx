@@ -1,0 +1,105 @@
+---
+title: 'Batch rename'
+description: 'Rename up to 100 images at once using prefixes, numbering, dates, and case transforms — with a live preview before any files are touched.'
+---
+
+The Rename module applies a chain of naming transforms to a group of images. You configure the rules, inspect the live preview table, and only then commit the changes to disk.
+
+## How transforms are applied
+
+Yagua applies transformations in a fixed order regardless of which options you enable:
+
+1. **Numbering** — adds a prefix and/or a zero-padded counter
+2. **Date stamp** — wraps the name with the current date
+3. **Case** — converts the final name to lower or upper case
+
+This means, for example, that a date prefix will always appear before a numbered prefix if both are active.
+
+## Configuration options
+
+### Numbering
+
+Enable **Numeracion** to append or replace the base name with a sequential counter.
+
+| Option | Description |
+|--------|-------------|
+| **Prefix** | Text to place before the counter. Leave empty to keep the original stem and append the counter to it. |
+| **Start at** | First number in the sequence (defaults to `1`). |
+
+Numbers are zero-padded to three digits: `001`, `002`, …, `999`.
+
+**Examples**
+
+| Original | Prefix | Start | Result |
+|----------|--------|-------|--------|
+| `photo` | *(empty)* | 1 | `photo_001` |
+| `photo` | `event` | 5 | `event_005` |
+
+### Date stamp
+
+Enable **Fecha** to embed the current date into the name.
+
+| Option | Values | Default |
+|--------|--------|---------|
+| **Format** | Any `strftime` pattern, e.g. `%Y%m%d`, `%d-%m-%Y` | `%Y%m%d` |
+| **Position** | `prefijo` (before) or `sufijo` (after) | `prefijo` |
+
+**Examples**
+
+| Position | Format | Result |
+|----------|--------|--------|
+| prefix | `%Y%m%d` | `20240610_photo_001` |
+| suffix | `%d-%m-%Y` | `photo_001_10-06-2024` |
+
+### Case conversion
+
+| Value | Effect |
+|-------|--------|
+| `sin_cambio` | No change (default) |
+| `minusculas` | Entire final name to lowercase |
+| `mayusculas` | Entire final name to uppercase |
+
+Case is applied last, after numbering and dating.
+
+## Live preview
+
+<Steps>
+  <Step title="Add images">
+    Select up to **100 images**. They appear in the file list on the left.
+  </Step>
+  <Step title="Configure transforms">
+    Toggle and adjust any combination of numbering, date, and case options. The preview table updates instantly as you type — no files are changed yet.
+  </Step>
+  <Step title="Review the preview table">
+    Each row shows the **original filename** alongside the **proposed new filename**. Scroll through the full list before confirming.
+  </Step>
+  <Step title="Apply">
+    Click **Rename**. Yagua renames each file in place (same folder) using `Path.rename()`.
+  </Step>
+</Steps>
+
+<Note>
+  The file extension is never modified. Only the stem (name without extension) is transformed.
+</Note>
+
+## Conflict resolution
+
+If the computed new name already exists in the same folder, Yagua **skips** that file and records it as a conflict. The summary shown after the operation includes:
+
+| Counter | Meaning |
+|---------|---------|
+| `ok` | Files successfully renamed (includes files whose name did not actually change) |
+| `errores` | Files that could not be renamed due to filesystem errors |
+| `conflictos` | Files skipped because the target name was already taken |
+
+<Warning>
+  Conflicts are silently skipped — the original file is left untouched. Check the summary after each batch and re-run with adjusted settings if needed.
+</Warning>
+
+<Tip>
+  To avoid conflicts when re-running a batch, change the **Start at** number or use a different prefix so the generated names do not collide with files from a previous run.
+</Tip>
+
+## Batch limit
+
+The rename module accepts up to **100 images** per operation. If you need to rename a larger set, split it into multiple batches.

@@ -1,0 +1,156 @@
+---
+title: 'EXIF Metadata'
+description: 'View, edit, clean, and export EXIF metadata embedded in your images.'
+---
+
+The Metadata module lets you inspect the EXIF data stored inside JPEG and other image files, edit a curated set of fields, and strip all metadata in bulk — useful for privacy or reducing file size before sharing.
+
+## Viewing metadata
+
+<Steps>
+  <Step title="Open the Metadata tab">
+    Select **Metadata** from the sidebar. Click **Select image** and choose a single image from your file system.
+  </Step>
+  <Step title="Read the data">
+    Yagua reads the EXIF block using Pillow and displays every recognized field in a table. Values are formatted into human-readable strings: aperture appears as `f/2.8`, shutter speed as `1/500s`, focal length as `50mm`, and GPS coordinates as `48° 51' 30.00"`.
+  </Step>
+  <Step title="Open in Google Maps (GPS)">
+    When a GPS fix is present, a **Open in Maps** button appears. Click it to open the decimal coordinates directly in your browser.
+  </Step>
+</Steps>
+
+<Note>
+  If the image has no EXIF data, the table will be empty. PNG files rarely carry EXIF; most metadata you will find is in JPEG and TIFF files.
+</Note>
+
+## Readable metadata fields
+
+All fields below are displayed when present in the file.
+
+<AccordionGroup>
+  <Accordion title="Camera and lens">
+    | Field | Display label |
+    |-------|---------------|
+    | `Make` | Camara (marca) |
+    | `Model` | Camara (modelo) |
+    | `LensModel` | Lente |
+  </Accordion>
+  <Accordion title="Dates and times">
+    | Field | Display label |
+    |-------|---------------|
+    | `DateTime` | Fecha y hora |
+    | `DateTimeOriginal` | Fecha original |
+    | `DateTimeDigitized` | Fecha digitalizada |
+  </Accordion>
+  <Accordion title="Exposure settings">
+    | Field | Display label | Format |
+    |-------|---------------|--------|
+    | `ISO` | ISO | integer |
+    | `FNumber` | Apertura | `f/2.8` |
+    | `ExposureTime` | Velocidad obturacion | `1/500s` |
+    | `FocalLength` | Focal | `50mm` |
+    | `Flash` | Flash | integer code |
+  </Accordion>
+  <Accordion title="Authorship and software">
+    | Field | Display label |
+    |-------|---------------|
+    | `Software` | Software |
+    | `Artist` | Autor |
+    | `Copyright` | Copyright |
+  </Accordion>
+  <Accordion title="Image dimensions">
+    | Field | Display label |
+    |-------|---------------|
+    | `ImageWidth` | Ancho |
+    | `ImageLength` | Alto |
+  </Accordion>
+  <Accordion title="GPS coordinates">
+    | Field | Display label | Format |
+    |-------|---------------|--------|
+    | `GPSLatitude` | Latitud GPS | `48° 51' 30.00"` |
+    | `GPSLongitude` | Longitud GPS | `2° 17' 40.00"` |
+
+    Yagua also calculates a decimal representation (`__gps_decimal__`) used internally for the Maps link.
+  </Accordion>
+</AccordionGroup>
+
+## Editing metadata
+
+Only JPEG and TIFF files support writable EXIF. Yagua exposes the following fields for editing:
+
+| Field key | Label |
+|-----------|-------|
+| `Artist` | Autor |
+| `Copyright` | Copyright |
+| `Software` | Software |
+| `DateTime` | Fecha y hora |
+| `DateTimeOriginal` | Fecha original |
+| `DateTimeDigitized` | Fecha digitalizada |
+
+<Steps>
+  <Step title="Select an editable image">
+    Load a JPEG or TIFF. The edit panel becomes active once the image is loaded.
+  </Step>
+  <Step title="Fill in the fields">
+    Enter values in one or more fields. **Date fields must follow the format `YYYY:MM:DD HH:MM:SS`** — for example, `2024:06:15 14:30:00`. Yagua validates this pattern before saving.
+  </Step>
+  <Step title="Save">
+    Click **Save**. Yagua writes the updated EXIF block via `piexif` and saves the result to your chosen output folder at 95 % JPEG quality.
+  </Step>
+</Steps>
+
+<Warning>
+  If you load a PNG or another format that does not support EXIF, Yagua saves a copy of the file without any metadata block and shows a `no_exif` warning. No data is lost from the original.
+</Warning>
+
+## Bulk clean (strip EXIF)
+
+The **Clean EXIF** mode removes all metadata from a batch of images by copying only pixel data into fresh image objects.
+
+<Steps>
+  <Step title="Select images">
+    Add up to **100 images** to the list. Mixed formats (JPEG, PNG, etc.) are supported.
+  </Step>
+  <Step title="Choose output folder">
+    Pick a destination folder. Each output file is named `<original>_sinexif.<ext>` by default.
+  </Step>
+  <Step title="Run">
+    Click **Clean**. Yagua processes each file, applies `exif_transpose` to honour any rotation flag before stripping, then saves the clean image. JPEG files are saved at 95 % quality with `optimize=True`; PNG files use `optimize=True`.
+  </Step>
+  <Step title="Review results">
+    A summary shows how many files succeeded, how many failed, and how many output filenames were auto-renamed to avoid overwriting existing files.
+  </Step>
+</Steps>
+
+<Tip>
+  Stripping EXIF before publishing photos online removes GPS location, device model, and software information — a simple privacy precaution.
+</Tip>
+
+## Exporting metadata
+
+After viewing metadata for an image you can export the displayed fields to a file for record-keeping.
+
+<Tabs>
+  <Tab title="Text (.txt)">
+    Produces a plain-text report with a header and one `field — value` line per entry. Internal fields (those starting with `__`) are excluded.
+
+    ```
+    METADATOS EXIF
+    ========================================
+    Camara (marca)            Apple
+    Camara (modelo)           iPhone 15 Pro
+    Fecha original            2024:03:10 09:45:00
+    ```
+  </Tab>
+  <Tab title="JSON (.json)">
+    Produces a structured JSON object with the same fields, encoded as UTF-8, indented with two spaces.
+
+    ```json
+    {
+      "Camara (marca)": "Apple",
+      "Camara (modelo)": "iPhone 15 Pro",
+      "Fecha original": "2024:03:10 09:45:00"
+    }
+    ```
+  </Tab>
+</Tabs>

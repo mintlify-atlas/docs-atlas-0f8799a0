@@ -1,0 +1,63 @@
+---
+title: 'Changelog'
+description: 'Version history and release notes for Yagua Image Processor.'
+---
+
+All notable changes to Yagua are documented here.
+
+---
+
+## Unreleased
+
+### New features
+- **OCR** — Extract text from images using EasyOCR.
+- **Watermark** — Apply watermarks with real-time preview.
+- **Vectorization** — Export images to SVG.
+- **Image transforms** — Rotation, flip, and EXIF orientation correction.
+- **HEIC/HEIF support** — Read and convert HEIC files.
+
+### UX / UI
+- Settings panel with tabs (Settings / Updates).
+- Improved messages and validations in the Metadata module (EXIF date fields).
+- More compact and consistent UI across new modules.
+
+### Fixes
+- Robust handling of file paths containing special characters across multiple modules.
+- Corrections to EXIF metadata editing behavior.
+
+### Build / packaging
+- PyInstaller updated with dynamic imports and new assets.
+- Dependencies updated for OCR and HEIC support.
+
+---
+
+## v1.1.1 — 2026-03-27
+
+- **Configurable sidebar** — Choose which modules appear in the sidebar from Settings.
+- **Apply button** — Avoids unnecessary restarts; sidebar module changes are batched and applied with a single click.
+- **Sidebar scroll** — The sidebar only shows a scrollbar when more than one module is visible and the list overflows.
+- **Background removal loader** — The Remove Background module now shows an internal non-blocking loader instead of freezing the screen during processing.
+- **Donation buttons** — PayPal support buttons added to the sidebar and Settings panel.
+- **Improved logs** — Better error logging for background removal failures.
+
+---
+
+## v1.1.0 — 2026-03-26
+
+- **Batch limits per module** — Maximum image counts enforced per module to improve reliability and performance: 100 images for most modules, 10 for Remove Background.
+- **pytest test suites** — Test coverage added for core processing logic and UI components.
+- **PEP 8 cleanup** — Code style and naming consistency improvements across the codebase.
+- **README** — Simplified with clearer installation and usage instructions.
+
+---
+
+## v1.0.0 — 2026-03-25
+
+First stable release.
+
+- **Processing modules:** Compress, Convert, Resize, EXIF Metadata, Remove Background, Batch Rename, LQIP / Base64.
+- **Output conflict handling** — Files are never overwritten; conflicting output filenames are automatically renamed with a numeric suffix.
+- **Background tasks** — Heavy operations run in background threads to prevent UI freezes.
+- **Translations** — Consistent UI labels across Spanish, English, and Portuguese.
+- **Settings persistence** — Theme and language saved to `user_settings.json` in the system's AppData directory.
+- **Build** — PyInstaller one-folder build with bundled assets and dynamic imports.

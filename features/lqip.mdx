@@ -1,0 +1,158 @@
+---
+title: 'LQIP and Base64'
+description: 'Generate Low Quality Image Placeholders and Base64-encoded inline images for use in web projects.'
+---
+
+The LQIP module converts images into self-contained Base64 strings ready to embed directly in HTML or CSS — no external file requests needed. It supports two modes: a full-quality Base64 encode and a LQIP (Low Quality Image Placeholder) optimised for progressive loading.
+
+## What is LQIP?
+
+A **Low Quality Image Placeholder** is a tiny, blurred version of an image that loads almost instantly. You display the LQIP first while the full-resolution image loads in the background — the blur hides the low quality and gives the user immediate visual feedback.
+
+LQIP is a standard web performance technique used by sites like Medium, Facebook, and many modern image-heavy applications.
+
+## Modes
+
+<Tabs>
+  <Tab title="LQIP (placeholder)">
+    Yagua resizes the image to a configurable width (default **20 px**), applies a Gaussian blur (default radius **2.0**), and compresses the result to JPEG at low quality (default **40**). The resulting data URI is typically under 1 KB.
+
+    | Parameter | Default | Range | Effect |
+    |-----------|---------|-------|--------|
+    | Width | `20` px | 1 – any | Smaller = tinier file, more blur needed |
+    | Blur radius | `2.0` | 0.0 – ∞ | Higher = smoother appearance at low resolution |
+    | JPEG quality | `40` | 1 – 100 | Lower = smaller file |
+
+    The output dict also includes `bytes` (raw byte count) and `dimensiones` (e.g. `20x13px`) so you can audit the placeholder size.
+  </Tab>
+  <Tab title="Base64 (full image)">
+    Encodes the complete image as a JPEG at configurable quality (default **85**) and returns the Base64 string. RGBA, indexed (`P`), and greyscale-alpha images are automatically converted to RGB before encoding.
+
+    | Parameter | Default | Range |
+    |-----------|---------|-------|
+    | JPEG quality | `85` | 1 – 100 |
+
+    Use this when you need to embed a small decorative asset or icon directly in a stylesheet or HTML file without a separate HTTP request.
+  </Tab>
+</Tabs>
+
+## Using the module
+
+<Steps>
+  <Step title="Select images">
+    Add one or more images to the list. The batch processor accepts any number of files.
+  </Step>
+  <Step title="Choose a mode">
+    Select **LQIP** or **Base64** from the mode selector.
+  </Step>
+  <Step title="Adjust parameters (optional)">
+    In LQIP mode, tune the width, blur, and quality sliders. In Base64 mode, adjust the JPEG quality.
+  </Step>
+  <Step title="Generate">
+    Click **Generate**. Yagua processes all images and displays the output for each one.
+  </Step>
+  <Step title="Copy or export">
+    Copy individual snippets from the result panel, or export the full batch to a `.txt` or `.json` file.
+  </Step>
+</Steps>
+
+## Output formats
+
+Each processed image produces four ready-to-use output formats.
+
+### Data URI
+
+The raw Base64 string wrapped in a data URI:
+
+```
+data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAA...
+```
+
+### HTML `<img>` tag
+
+```html
+<img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAA..." alt="photo" />
+```
+
+### CSS background
+
+```css
+.photo {
+  background-image: url("data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAA...");
+}
+```
+
+The CSS class name is derived from the original filename: spaces are replaced with hyphens and the name is lowercased.
+
+## Using LQIP in a web page
+
+A common pattern is to show the LQIP immediately and swap to the full image once it has loaded:
+
+```html
+<!-- 1. Start with the LQIP as the src -->
+<img
+  id="hero"
+  src="data:image/jpeg;base64,/9j/4AAQ..."
+  data-src="hero-full.jpg"
+  alt="Mountain landscape"
+  style="filter: blur(8px); transition: filter 0.4s;"
+/>
+
+<script>
+  const img = document.getElementById('hero');
+  const full = new Image();
+  full.src = img.dataset.src;
+  full.onload = () => {
+    img.src = full.src;
+    img.style.filter = 'none';
+  };
+</script>
+```
+
+You can also use the LQIP as a CSS background placeholder:
+
+```css
+.hero {
+  /* LQIP keeps the space while the real image loads */
+  background-image: url("data:image/jpeg;base64,/9j/4AAQ...");
+  background-size: cover;
+}
+```
+
+<Tip>
+  For best results, keep LQIP width at 20–30 px and apply an `8px` CSS blur on top. The CSS blur upscales the tiny image smoothly and hides compression artefacts.
+</Tip>
+
+## Exporting results
+
+<Tabs>
+  <Tab title="Text (.txt)">
+    One block per image, separated by blank lines. The exported field defaults to `data_uri` but can be `html_tag` or `css_bg`.
+
+    ```text
+    /* photo.jpg */
+    data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAA...
+
+    /* banner.jpg */
+    data:image/jpeg;base64,/9j/4AAQSkZJRgABAgAA...
+    ```
+  </Tab>
+  <Tab title="JSON (.json)">
+    An array of objects, one per image, with all four fields included:
+
+    ```json
+    [
+      {
+        "nombre": "photo.jpg",
+        "data_uri": "data:image/jpeg;base64,...",
+        "html_tag": "<img src=\"data:image/jpeg;base64,...\" alt=\"photo\" />",
+        "css_bg": ".photo {\n  background-image: url(\"data:image/jpeg;base64,...\");\n}"
+      }
+    ]
+    ```
+  </Tab>
+</Tabs>
+
+<Note>
+  Base64-encoded images increase the size of HTML/CSS files. Use LQIP (tiny placeholders) instead of full Base64 encodes wherever possible.
+</Note>

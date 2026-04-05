@@ -1,0 +1,144 @@
+---
+title: 'Configuration'
+description: 'Customize Yagua with themes, language, and a configurable sidebar to match your workflow.'
+---
+
+Yagua stores your preferences in a `user_settings.json` file under your system's app data directory. Settings are applied on restart and persist across sessions.
+
+<Note>
+  Settings are saved at:
+  - **Windows:** `%APPDATA%\Yagua\user_settings.json`
+  - **Linux:** `~/.config/Yagua/user_settings.json`
+</Note>
+
+## Opening settings
+
+Click the **Settings** icon at the bottom of the sidebar to open the Settings panel. It has three tabs: **Settings**, **Updates**, and **Logs**.
+
+---
+
+## Theme
+
+Yagua ships with nine built-in dark themes. To change the theme:
+
+<Steps>
+  <Step title="Open Settings">
+    Click the Settings icon in the sidebar.
+  </Step>
+  <Step title="Select a theme">
+    Under **UI Theme**, choose from the dropdown. The available themes are:
+
+    | Theme | Accent color |
+    |-------|-------------|
+    | Default | White (`#FFFFFF`) |
+    | Tokyo Night | Blue (`#7AA2F7`) |
+    | Vaporwave | Purple (`#D17BE8`) |
+    | Dracula | Lavender (`#BD93F9`) |
+    | Nord | Steel blue (`#81A1C1`) |
+    | Soft Graphite | Soft blue (`#5A8DEE`) |
+    | Muted Blue | Blue (`#4C7DFF`) |
+    | Soft Purple | Violet (`#8B6CFF`) |
+    | Slate Teal | Teal (`#3FA7A3`) |
+
+  </Step>
+  <Step title="Apply">
+    The app restarts automatically after you select a theme to apply the new colors.
+  </Step>
+</Steps>
+
+<Tip>
+  The **Default** theme is used on new installations. It uses a clean dark palette with white accents.
+</Tip>
+
+---
+
+## Language
+
+Yagua supports three interface languages. To change the language:
+
+<Steps>
+  <Step title="Open Settings">
+    Click the Settings icon in the sidebar.
+  </Step>
+  <Step title="Select a language">
+    Under **Language**, pick from the dropdown:
+    - **Español** (Spanish)
+    - **English**
+    - **Português** (Portuguese)
+  </Step>
+  <Step title="Apply">
+    The app restarts automatically to reload the interface in the selected language.
+  </Step>
+</Steps>
+
+---
+
+## Configurable sidebar
+
+You can choose which modules appear in the sidebar. This keeps the interface focused on the tools you actually use.
+
+<Steps>
+  <Step title="Open Settings">
+    Click the Settings icon in the sidebar.
+  </Step>
+  <Step title="Toggle modules">
+    Under **Visible modules**, use the toggle switches to show or hide each module. The hint text reads: *"Select the modules you want to see in the sidebar."*
+
+    The available modules are:
+
+    - Convert
+    - Compress
+    - Resize
+    - Image Transform
+    - Remove Background
+    - Extract Palette
+    - Watermark
+    - Batch Rename
+    - Extract Text (OCR)
+    - Vectorize
+    - EXIF Metadata
+    - LQIP / Base64
+
+  </Step>
+  <Step title="Click Apply">
+    Click the **Apply** button to save your selection. The app restarts and the sidebar updates to show only the modules you selected.
+  </Step>
+</Steps>
+
+<Note>
+  The **Settings** module is always visible and cannot be hidden.
+</Note>
+
+<Tip>
+  The sidebar shows a scrollbar only when more than one module is visible and the list overflows the panel height.
+</Tip>
+
+---
+
+## How settings are saved
+
+All preferences are written to `user_settings.json` as a JSON object. Here is an example of what the file looks like:
+
+```json user_settings.json
+{
+  "language": "English",
+  "theme": "Default",
+  "visible_modules": ["compress", "convert", "resize", "remove_bg", "settings"]
+}
+```
+
+The file is created automatically on first run. If the file is missing or corrupted, Yagua falls back to the **Default** theme, **Español** language, and all modules visible.
+
+---
+
+## Apply button behavior
+
+The **Apply** button in the visible modules panel saves changes and triggers an automatic restart of the application. You do not need to close and reopen the app manually — the restart happens within 1.5 seconds of clicking Apply.
+
+Language and theme changes also restart the app immediately after selection, without requiring a separate Apply click.
+
+---
+
+## Checking for updates
+
+The **Updates** tab in Settings shows the current version and a **Check updates** button. Click it to check for newer releases of Yagua.

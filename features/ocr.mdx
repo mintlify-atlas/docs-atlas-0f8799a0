@@ -1,0 +1,117 @@
+---
+title: 'OCR text extraction'
+description: 'Extract text from images using EasyOCR, with multi-language support and batch processing.'
+---
+
+The OCR module reads text embedded in images and outputs it as clean, structured plain text. It uses [EasyOCR](https://github.com/JaidedAI/EasyOCR), a deep-learning OCR engine that supports over 80 languages without any external API or cloud dependency.
+
+## How extraction works
+
+Yagua applies a preprocessing pipeline before passing the image to EasyOCR:
+
+1. **Greyscale conversion** — the image is converted from BGR to grey using OpenCV.
+2. **Otsu thresholding** — an automatic binary threshold is applied to maximise contrast between text and background.
+3. **EasyOCR readtext** — the preprocessed array is passed to the `Reader.readtext()` method.
+4. **Spatial sorting** — detected text blocks are grouped into rows by their Y-coordinate (within a 10-pixel tolerance) and sorted left-to-right within each row, reconstructing the reading order of the original layout.
+5. **Text cleaning** — each line is cleaned to preserve alphanumeric characters, common punctuation (`. , ; : ? ! % $ @ # ( ) - / & ' "`), Spanish diacritics (`á é í ó ú Á É Í Ó Ú ñ Ñ ¿ ¡`), and whitespace. Multiple spaces are collapsed to one.
+
+The final output is a multi-line string that mirrors the spatial layout of text in the image.
+
+## Supported languages
+
+EasyOCR supports over 80 languages. Yagua defaults to **Spanish (`es`)** and **English (`en`)** simultaneously. You can change the active languages in the OCR settings panel.
+
+<AccordionGroup>
+  <Accordion title="Common language codes">
+    | Code | Language |
+    |------|----------|
+    | `en` | English |
+    | `es` | Spanish |
+    | `fr` | French |
+    | `de` | German |
+    | `pt` | Portuguese |
+    | `it` | Italian |
+    | `zh` | Chinese (Simplified) |
+    | `ja` | Japanese |
+    | `ko` | Korean |
+    | `ar` | Arabic |
+    | `ru` | Russian |
+    | `nl` | Dutch |
+    | `pl` | Polish |
+    | `tr` | Turkish |
+
+    For the full list, see the [EasyOCR language support table](https://www.jaided.ai/easyocr/).
+  </Accordion>
+</AccordionGroup>
+
+<Note>
+  Changing the language set triggers a one-time model download. The downloaded models are cached on disk and reused for all subsequent runs with the same language combination.
+</Note>
+
+## Using the OCR module
+
+<Steps>
+  <Step title="Select images">
+    Add up to **10 images** to the queue. The batch limit is enforced by the processing engine.
+  </Step>
+  <Step title="Set languages">
+    Choose one or more languages from the language selector. Multiple languages can be active at the same time — EasyOCR will attempt to recognise any of them within the same image.
+  </Step>
+  <Step title="Run extraction">
+    Click **Extract text**. Yagua initialises the EasyOCR `Reader` (or reuses a cached instance if the same language set was used before) and processes each image.
+  </Step>
+  <Step title="Review results">
+    Extracted text appears in the result panel, one section per image. Each section shows the filename and the multi-line text block below it.
+  </Step>
+  <Step title="Export">
+    Click **Export** to save the extracted text to a `.txt` file in your chosen output folder.
+  </Step>
+</Steps>
+
+## Batch processing
+
+The batch function processes up to **10 images** per run. Submitting more than 10 images results in only the first 10 being processed; the rest are silently ignored.
+
+<Warning>
+  **AVIF files** are skipped automatically if your Pillow build does not include AVIF support. Skipped files are counted and reported in the `avif_omitidos` field of the result summary — they do not count as errors.
+</Warning>
+
+The result summary includes:
+
+| Field | Meaning |
+|-------|---------|
+| `ok` | Number of images successfully processed |
+| `errores` | Number of images that failed |
+| `textos` | Dictionary mapping file paths to extracted text strings |
+| `avif_omitidos` | Number of AVIF files skipped |
+
+## Exporting text
+
+Extracted text is saved to a `.txt` file. If a file named `texto_extraido.txt` already exists in the output folder, Yagua appends a numeric suffix (`texto_extraido_1.txt`, `texto_extraido_2.txt`, …) to avoid overwriting existing exports.
+
+```
+texto_extraido.txt
+texto_extraido_1.txt
+texto_extraido_2.txt
+```
+
+## Tips for best results
+
+<CardGroup cols={2}>
+  <Card title="High contrast" icon="contrast">
+    Images where text is clearly darker or lighter than the background (black on white, white on dark) produce the most accurate results. Otsu thresholding handles most cases automatically.
+  </Card>
+  <Card title="Horizontal text" icon="align-left">
+    EasyOCR performs best on horizontal text. Rotated or vertical text may produce lower accuracy or incorrect reading order.
+  </Card>
+  <Card title="Minimal noise" icon="image">
+    Avoid heavily textured backgrounds. If accuracy is low, try pre-cropping the image to the text region before running OCR.
+  </Card>
+  <Card title="Match the language" icon="languages">
+    Always enable the language that matches the text in the image. Running Spanish-only on an English document degrades accuracy significantly.
+  </Card>
+</CardGroup>
+
+<Tip>
+  Reader initialisation (first run per language set) can take several seconds as the neural network model is loaded into memory. Subsequent images in the same session use the cached reader and are much faster.
+</Tip>

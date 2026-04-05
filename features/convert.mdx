@@ -1,0 +1,118 @@
+---
+title: 'Format conversion'
+description: 'Convert images between nine formats in batch. Yagua handles color mode and transparency differences automatically for each target format.'
+---
+
+Format conversion lets you change the file format of one or more images while preserving as much quality and image data as possible. Yagua handles the differences between formats — such as transparency support and color modes — automatically.
+
+## Supported formats
+
+<CardGroup cols={3}>
+  <Card title="JPEG" icon="image">
+    Lossy, no transparency. Best for photos.
+  </Card>
+  <Card title="PNG" icon="image">
+    Lossless, full transparency. Best for graphics.
+  </Card>
+  <Card title="WEBP" icon="image">
+    Lossy or lossless, transparency supported.
+  </Card>
+  <Card title="AVIF" icon="image">
+    Modern lossy format, excellent compression.
+  </Card>
+  <Card title="HEIC" icon="image">
+    Apple's high-efficiency format.
+  </Card>
+  <Card title="ICO" icon="image">
+    Windows icon format, multi-size.
+  </Card>
+  <Card title="BMP" icon="image">
+    Uncompressed bitmap.
+  </Card>
+  <Card title="TIFF" icon="image">
+    High quality, lossless archival format.
+  </Card>
+  <Card title="GIF" icon="image">
+    256-color palette, supports animation.
+  </Card>
+</CardGroup>
+
+You can convert **from** any of these formats **to** any of these formats.
+
+## Batch conversion workflow
+
+<Steps>
+  <Step title="Add images">
+    Drag and drop files into the file list or use the file picker. There is no hard limit for conversion batches.
+  </Step>
+  <Step title="Choose target format">
+    Select the output format from the dropdown. All images in the batch will be converted to the same format.
+  </Step>
+  <Step title="Set quality (if applicable)">
+    For formats that support lossy encoding (JPEG, WEBP, AVIF, HEIC), set a quality level between 10 and 100. The default is **90**. PNG, ICO, BMP, and GIF ignore this setting.
+  </Step>
+  <Step title="Choose output folder">
+    Select the destination folder. Output files keep the original filename with the new extension.
+  </Step>
+  <Step title="Convert">
+    Click **Convert**. The app reports how many files succeeded, how many failed, and whether any filenames were renamed to avoid conflicts.
+  </Step>
+</Steps>
+
+## Transparency and color mode handling
+
+Each target format has different capabilities. Yagua applies the correct color mode conversion automatically:
+
+<Tabs>
+  <Tab title="JPEG">
+    JPEG does not support transparency. Any transparent areas (RGBA, LA, or palette mode with alpha) are composited onto a **white background** before saving. CMYK source images are converted to RGB.
+
+    EXIF orientation is corrected automatically before conversion.
+  </Tab>
+  <Tab title="PNG">
+    PNG supports full transparency. If the source is in palette mode (`P`), it is first converted to RGBA to preserve any transparency. All other modes are saved as-is.
+  </Tab>
+  <Tab title="WEBP">
+    WEBP supports RGBA. If the source is not already in RGB or RGBA, it is converted to RGBA before saving.
+  </Tab>
+  <Tab title="GIF">
+    GIF supports only a 256-color palette. The image is quantized to `P` mode using the adaptive MEDIANCUT algorithm before saving.
+  </Tab>
+  <Tab title="ICO">
+    ICO requires RGBA mode. The output automatically includes six sizes: 16×16, 32×32, 48×48, 64×64, 128×128, and 256×256.
+  </Tab>
+  <Tab title="BMP / TIFF">
+    These formats support RGB, RGBA, and grayscale (`L`). If the source is in any other mode, it is converted to RGB.
+  </Tab>
+  <Tab title="AVIF / HEIC">
+    These formats support RGB and RGBA. If the source is in any other mode, it is converted to RGB.
+  </Tab>
+</Tabs>
+
+<Note>
+  HEIC support requires the `pillow-heif` package. If it is not installed, HEIC will not appear as an available option.
+</Note>
+
+## Output file naming
+
+Output files are saved as:
+
+```
+<original-name>.<new-extension>
+```
+
+For example, converting `banner.png` to WEBP produces `banner.webp` in the chosen output folder. If a file with that name already exists, Yagua appends a number to avoid overwriting it and counts the rename as a conflict in the results summary.
+
+## Format quality support
+
+| Format | Quality parameter |
+|---|---|
+| JPEG | Yes (10–100) |
+| WEBP | Yes (10–100) |
+| AVIF | Yes (10–100) |
+| HEIC | Yes (10–100) |
+| PNG | No (lossless) |
+| ICO | No |
+| BMP | No |
+| GIF | No |
+| TIFF | No |

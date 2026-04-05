@@ -1,11 +1,13 @@
 ---
-title: "Yagua Image Processor"
-description: "A free, open-source desktop application for batch image processing — compress, convert, remove backgrounds with AI, extract color palettes, and more."
+title: "Introduction"
+description: "Yagua is a free, open-source desktop application for batch image processing — compress, convert, remove backgrounds with AI, and much more, all running locally."
 ---
 
-## Welcome to Yagua
+## What is Yagua?
 
-Yagua is a free, open-source desktop image processor built for developers, designers, and photographers who need to process images in bulk — without browser limitations, file size caps, or paid subscriptions. Everything runs locally on your machine.
+Yagua is a free, open-source desktop image processor built for developers, designers, and photographers who need to process images in bulk without browser limitations or paid subscriptions. Everything runs locally on your machine — no internet required (after the initial AI model download).
+
+It combines an intuitive GUI built with CustomTkinter with powerful image processing backends including Pillow, rembg, and EasyOCR, giving you professional-grade tools in a single application.
 
 <CardGroup cols={2}>
   <Card title="Installation" icon="download" href="/installation">
@@ -32,7 +34,7 @@ Yagua is a free, open-source desktop image processor built for developers, desig
     Convert between all major image formats in a single batch operation
   </Card>
   <Card title="AI background removal" icon="scissors" href="/features/remove-background">
-    Remove backgrounds using the u2netp AI model — works fully offline after the first download
+    Remove backgrounds using the u2netp AI model via rembg — works fully offline after the first download
   </Card>
   <Card title="Color palette extraction" icon="palette" href="/features/palette">
     Extract dominant colors and export palettes as HEX, RGB, HSL, or PNG swatches
@@ -41,19 +43,27 @@ Yagua is a free, open-source desktop image processor built for developers, desig
     View, edit, and bulk-clean EXIF metadata across up to 100 images at once
   </Card>
   <Card title="LQIP & Base64" icon="code" href="/features/lqip">
-    Generate Low Quality Image Placeholders and Base64 encodings for web workflows
+    Generate Low Quality Image Placeholders and Base64 encodings for modern web workflows
   </Card>
 </CardGroup>
 
 ## Why Yagua?
 
-Most web-based image tools are limited — restricted file counts, low resolution caps, and features behind paywalls. Yagua runs everything locally:
+Most web-based image tools are limited — restricted file counts, low resolution caps, and features locked behind subscriptions. Yagua runs everything locally on your machine:
 
 - **No file size limits** — process any resolution image
 - **No internet dependency** — everything runs offline
 - **No subscriptions** — completely free and open source (MIT license)
 - **Batch processing** — handle up to 100 images per operation
 - **Multi-language** — available in Spanish, English, and Portuguese
+
+## Supported platforms
+
+| Platform | Status |
+|----------|--------|
+| Windows 10/11 | Supported (installer available) |
+| Linux x64 | Supported (AppImage available) |
+| macOS | Coming soon |
 
 <Note>
 Yagua is available as a pre-built installer for Windows and as an AppImage for Linux. You can also run it directly from source on any Python 3.13+ environment.

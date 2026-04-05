@@ -1,0 +1,122 @@
+---
+title: 'SVG vectorization'
+description: 'Convert raster images to scalable SVG files using vtracer, with fine-grained control over path quality and colour fidelity.'
+---
+
+The Vectorize module converts bitmap images (JPEG, PNG, etc.) into resolution-independent SVG files. Under the hood it uses [vtracer](https://github.com/visioncortex/vtracer), a Rust-based tracing library that produces compact, well-structured SVG output with stacked colour layers.
+
+## What vectorization does
+
+Vectorization analyses the colours and shapes in a raster image and represents them as SVG `<path>` elements. The output is a standard `.svg` file that can be scaled to any size without quality loss, edited in Inkscape, Figma, or any SVG-capable tool, and embedded directly in HTML.
+
+<Note>
+  Vectorization is a lossy process. Complex photographs with subtle gradients do not convert well. The best results come from illustrations, logos, icons, and images with clear, high-contrast shapes.
+</Note>
+
+## Configuration parameters
+
+All parameters correspond directly to vtracer's API. The UI exposes them as sliders; the values below are the defaults.
+
+<AccordionGroup>
+  <Accordion title="Colour mode">
+    | Value | Description |
+    |-------|-------------|
+    | `color` (default) | Full-colour output with multiple stacked layers |
+    | `binary` | Two-tone black-and-white output |
+
+    Use `binary` for line art, sketches, and text-based images.
+  </Accordion>
+  <Accordion title="Path quality">
+    | Parameter | Default | Range | Effect |
+    |-----------|---------|-------|--------|
+    | `filter_speckle` | `4` | 0 – 128 | Removes isolated pixels smaller than this area. Higher values simplify the output by discarding small details. |
+    | `corner_threshold` | `60` | 0 – 180 | Angle (degrees) below which a bend is treated as a corner. Lower values produce smoother curves. |
+    | `length_threshold` | `4.0` | 0.0 – 10.0 | Minimum segment length. Shorter segments are merged. |
+    | `splice_threshold` | `45` | 0 – 180 | Controls how aggressively adjacent curves are spliced together. |
+    | `max_iterations` | `10` | 1 – 20 | Optimisation passes. More iterations = smoother paths at the cost of processing time. |
+    | `path_precision` | `8` | 1 – 8 | Decimal places in SVG path coordinates. Lower values produce smaller files with slightly less precision. |
+    | `mode` | `spline` | `spline`, `polygon`, `none` | Path type. `spline` for smooth curves, `polygon` for straight-edged shapes, `none` for raw outlines. |
+  </Accordion>
+  <Accordion title="Colour fidelity">
+    | Parameter | Default | Range | Effect |
+    |-----------|---------|-------|--------|
+    | `color_precision` | `6` | 1 – 8 | Number of significant bits per colour channel. Higher values preserve more colour variation. |
+    | `layer_difference` | `16` | 0 – 64 | Minimum colour difference between stacked layers. Lower values create more layers and finer colour transitions. |
+  </Accordion>
+</AccordionGroup>
+
+## Vectorizing a single image
+
+<Steps>
+  <Step title="Select an image">
+    Click **Select image** and choose a JPEG, PNG, or other raster image.
+  </Step>
+  <Step title="Choose an output folder">
+    Pick the folder where the `.svg` file will be saved.
+  </Step>
+  <Step title="Adjust parameters (optional)">
+    Tune the sliders for your image type. For logos and icons, try lowering `filter_speckle` to `2` and `layer_difference` to `8` for finer detail.
+  </Step>
+  <Step title="Vectorize">
+    Click **Vectorize**. Yagua calls vtracer and saves `<original_name>.svg` in the output folder.
+  </Step>
+</Steps>
+
+## Batch vectorization
+
+<Steps>
+  <Step title="Add multiple images">
+    Select all images you want to convert. All images in the batch share the same parameter settings.
+  </Step>
+  <Step title="Set output folder">
+    Choose a destination. Each SVG is named after its source file: `photo.jpg` → `photo.svg`.
+  </Step>
+  <Step title="Run">
+    Click **Vectorize all**. Yagua processes each image and reports the results.
+  </Step>
+</Steps>
+
+The result summary includes:
+
+| Field | Meaning |
+|-------|---------|
+| `ok` | Number of images successfully converted |
+| `errores` | Number of images that failed |
+| `archivos` | List of generated `.svg` file paths |
+
+## Output file
+
+The output is a standard SVG file with `hierarchical="stacked"` layers — each colour region is represented as a separate `<path>` element stacked in depth order. The file can be opened directly in a browser or imported into any vector editor.
+
+```xml
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600">
+  <path fill="#ffffff" d="M0,0 L800,0 L800,600 L0,600 Z"/>
+  <path fill="#3a86ff" d="M120,80 C140,60 ..."/>
+  <!-- additional colour layers -->
+</svg>
+```
+
+## Best practices for input images
+
+<CardGroup cols={2}>
+  <Card title="High contrast" icon="sun">
+    Images with clear edges between shapes vectorize cleanly. Increase contrast in the image editor before vectorizing if edges look soft.
+  </Card>
+  <Card title="Flat colours" icon="palette">
+    Illustrations, logos, and clip art with solid fills produce the most faithful SVG output. Gradients and photographs work but generate many layers.
+  </Card>
+  <Card title="Clean background" icon="image">
+    A uniform (ideally white or transparent) background prevents vtracer from adding unnecessary background layers to the SVG.
+  </Card>
+  <Card title="Reasonable resolution" icon="ruler">
+    Input images of 500–2000 px on the long side strike the best balance between detail and processing time. Very large images slow down tracing significantly.
+  </Card>
+</CardGroup>
+
+<Tip>
+  Start with the defaults and enable `binary` colour mode first if you are converting line art or black-and-white sketches. Then switch to `color` mode only if you need multi-colour output.
+</Tip>
+
+<Warning>
+  vtracer must be installed for this module to work. If Yagua reports an `ImportError` on vectorization, install it with `pip install vtracer`. It is listed as an optional dependency because it requires a working Rust toolchain to build from source on some platforms.
+</Warning>

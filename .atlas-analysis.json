@@ -1,0 +1,83 @@
+{
+  "projectType": "saas",
+  "projectName": "Yagua Image Processor",
+  "projectDescription": "A free, open-source desktop application for batch image processing — compress, convert, remove backgrounds with AI, extract color palettes, and more.",
+  "theme": "almond",
+  "primaryColor": "#0c9cdb",
+  "lightColor": "#21367a",
+  "darkColor": "#cdd9e2",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "installation",
+              "quickstart"
+            ]
+          },
+          {
+            "group": "Core Features",
+            "pages": [
+              "features/compress",
+              "features/convert",
+              "features/resize-transform",
+              "features/remove-background",
+              "features/palette"
+            ]
+          },
+          {
+            "group": "Advanced Features",
+            "pages": [
+              "features/metadata",
+              "features/rename",
+              "features/lqip",
+              "features/watermark",
+              "features/ocr",
+              "features/vectorize"
+            ]
+          },
+          {
+            "group": "Configuration & Support",
+            "pages": [
+              "configuration",
+              "system-requirements",
+              "troubleshooting",
+              "contributing",
+              "changelog"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Batch image compression with quality control (JPEG, PNG, WEBP, AVIF, HEIC, and more)",
+    "Format conversion between all major image formats",
+    "AI-powered background removal using rembg (offline-capable)",
+    "Automatic color palette extraction with HEX, RGB, and HSL export",
+    "EXIF metadata viewing, editing, and bulk cleanup",
+    "Batch file renaming with live preview",
+    "LQIP (Low Quality Image Placeholder) and Base64 generation for web workflows",
+    "Image resizing, rotation, flip, and canvas editing",
+    "Watermark application with real-time preview",
+    "OCR text extraction using EasyOCR",
+    "SVG vectorization from raster images",
+    "Multi-language support (Spanish, English, Portuguese) with dark themes"
+  ],
+  "publicApiSurface": [
+    "comprimir_imagen(ruta_entrada, ruta_salida, calidad, quitar_exif) -> dict",
+    "batch_comprimir(rutas, carpeta_salida, calidad, quitar_exif, sufijo) -> dict",
+    "estimar_tamano(ruta_entrada, calidad) -> int",
+    "quitar_fondo(ruta_entrada, ruta_salida, formato_salida) -> dict",
+    "batch_quitar_fondo(rutas, carpeta_salida, formato_salida) -> dict",
+    "extraer_paleta(ruta, n_colores) -> list",
+    "exportar_paleta_imagen(paleta, ruta_salida) -> str",
+    "formatos_color(rgb_tuple) -> dict",
+    "rgb_a_hex(rgb_tuple) -> str",
+    "rgb_a_hsl(rgb_tuple) -> tuple"
+  ]
+}

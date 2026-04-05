@@ -1,0 +1,102 @@
+---
+title: 'Color palette'
+description: 'Extract dominant colors from any image. Copy color values in HEX, RGB, HSL, or CSS variable format, and export a swatch image.'
+---
+
+The color palette tool analyzes an image and identifies its most visually prominent colors. You can copy each color in multiple formats or export the whole palette as a PNG swatch image for use in design tools.
+
+## How it works
+
+Yagua uses Pillow's **MEDIANCUT quantization** algorithm to reduce the image to a fixed number of representative colors. The image is first scaled down to a maximum of 400×400 pixels to speed up analysis, then quantized to the requested number of colors. Colors are ranked by frequency — how many pixels in the image map to each color — so the most dominant colors appear first.
+
+## Extracting a palette
+
+<Steps>
+  <Step title="Open an image">
+    Click the image area or drag a file onto the palette screen. A thumbnail preview appears along with the image dimensions and format.
+  </Step>
+  <Step title="Set the number of colors">
+    Choose how many colors to extract. The default is **6**. You can increase or decrease this depending on how detailed a palette you need.
+  </Step>
+  <Step title="Extract">
+    Click **Extract palette**. The dominant colors appear as swatches, ordered from most to least frequent in the image.
+  </Step>
+  <Step title="Copy color values">
+    Click any swatch to copy its color value in your preferred format: HEX, RGB, HSL, or CSS variable.
+  </Step>
+  <Step title="Export (optional)">
+    Click **Export palette** to save a PNG image of the swatches with HEX codes to a location of your choice.
+  </Step>
+</Steps>
+
+## Color formats
+
+For each extracted color, Yagua provides four ready-to-copy representations:
+
+<CardGroup cols={2}>
+  <Card title="HEX" icon="hash">
+    Six-digit hexadecimal, uppercase. Example: `#FF5733`
+  </Card>
+  <Card title="RGB" icon="palette">
+    Red, green, blue values from 0–255. Example: `rgb(255, 87, 51)`
+  </Card>
+  <Card title="HSL" icon="sun">
+    Hue (0–360°), saturation (0–100%), lightness (0–100%). Example: `hsl(11, 100%, 60%)`
+  </Card>
+  <Card title="CSS variable" icon="code">
+    Ready-to-paste CSS custom property declaration. Example: `--color: #FF5733;`
+  </Card>
+</CardGroup>
+
+## Exported swatch image
+
+Clicking **Export palette** generates a PNG image with:
+
+- A **dark background** (`#121214`) to make colors stand out
+- One **rounded swatch** (120×120 px by default) per color, with 20 px padding between swatches
+- The **HEX code** printed in light text below each swatch
+
+The exported PNG is sized dynamically to fit all swatches in a single row.
+
+<Tip>
+  The swatch image is useful for presenting a color palette in design documents, style guides, or README files.
+</Tip>
+
+## Key functions
+
+These are the three main functions that power the palette feature:
+
+### `extraer_paleta(ruta, n_colores=6)`
+
+Opens the image, scales it down to 400×400, quantizes it using MEDIANCUT, and returns a list of `(R, G, B)` tuples sorted by pixel frequency — most dominant first.
+
+### `formatos_color(rgb_tuple)`
+
+Takes a single `(R, G, B)` tuple and returns a dictionary with all four color representations:
+
+```python
+{
+    'HEX':     '#FF5733',
+    'RGB':     'rgb(255, 87, 51)',
+    'HSL':     'hsl(11, 100%, 60%)',
+    'CSS var': '--color: #FF5733;',
+}
+```
+
+### `exportar_paleta_imagen(paleta, ruta_salida, ...)`
+
+Renders the palette as a PNG swatch image and saves it to `ruta_salida`. The function uses the Inter font if available, falling back to Pillow's built-in default font. Returns the path of the saved file.
+
+## Algorithm details
+
+| Detail | Value |
+|---|---|
+| Algorithm | MEDIANCUT (Pillow `Image.Quantize.MEDIANCUT`) |
+| Pre-scale | 400×400 px maximum before quantization |
+| Default colors | 6 |
+| Color ranking | By pixel frequency, descending |
+| Luminance formula | `0.299R + 0.587G + 0.114B` (standard weighted) |
+
+<Note>
+  MEDIANCUT produces perceptually balanced palettes. It divides the color space into regions and picks the median color in each region, so the extracted colors tend to be distinct rather than clustered near each other.
+</Note>

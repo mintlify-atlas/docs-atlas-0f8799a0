@@ -1,0 +1,80 @@
+---
+title: 'Background removal'
+description: 'Remove image backgrounds automatically using the u2netp AI model. Processes up to 10 images per batch and exports with transparency.'
+---
+
+Yagua uses [rembg](https://github.com/danielgatis/rembg) with the **u2netp** model to detect and remove image backgrounds. The result is exported as a transparent image in your chosen format. After the model is downloaded once, background removal works entirely offline.
+
+## Before you start
+
+<Warning>
+  Background removal requires the `rembg` package. If it is not installed, this feature will be unavailable. Install it with `pip install rembg`.
+</Warning>
+
+### Model download
+
+The u2netp model is approximately **4 MB** and is downloaded automatically the first time you use background removal. The model is saved to `~/.u2net/u2netp.onnx` on your system.
+
+- The download happens in the background when you first open the Remove Background screen or click **Remove background**.
+- A progress indicator shows while the download is in progress.
+- Once downloaded, the model is reused for all future sessions — no internet connection is required.
+
+<Note>
+  You can pre-download the model by opening the Remove Background screen once while connected to the internet, even before adding any images.
+</Note>
+
+## Supported output formats
+
+Background removal always produces an image with transparency. The output format must support an alpha channel:
+
+| Format | Extension | Notes |
+|---|---|---|
+| PNG | `.png` | Default. Lossless, universal transparency support. |
+| WEBP | `.webp` | Smaller files, widely supported in modern browsers. |
+| TIFF | `.tiff` | High quality, suitable for print workflows. |
+
+## How batch removal works
+
+<Steps>
+  <Step title="Add images">
+    Drag images into the file list or use the file picker. You can process up to **10 images** per batch.
+  </Step>
+  <Step title="Select output format">
+    Choose PNG, WEBP, or TIFF from the format dropdown. The default is PNG.
+  </Step>
+  <Step title="Choose output folder">
+    Select a destination folder. Output files are saved with the suffix `_sinFondo` and the new extension.
+  </Step>
+  <Step title="Remove backgrounds">
+    Click **Remove background**. Yagua loads the u2netp model once and reuses the same session for all images in the batch — this is more efficient than loading it separately for each image.
+  </Step>
+  <Step title="Review results">
+    The app reports how many images were processed successfully and how many failed. Any filename conflicts are renamed automatically.
+  </Step>
+</Steps>
+
+## Output file naming
+
+Output files are saved as:
+
+```
+<original-name>_sinFondo.<output-extension>
+```
+
+For example, processing `product.jpg` with PNG output produces `product_sinFondo.png`. If that name already exists in the output folder, a number is appended to avoid overwriting.
+
+## EXIF orientation correction
+
+Before the background is removed, Yagua applies EXIF-based orientation correction. This ensures that photos taken on smartphones or cameras are processed in their correct orientation, regardless of how the orientation metadata is embedded in the file.
+
+## Batch limit
+
+<Warning>
+  Background removal is limited to **10 images per batch**. AI inference is computationally intensive, and this limit helps prevent the application from becoming unresponsive during processing.
+</Warning>
+
+If you need to process more than 10 images, run multiple batches.
+
+## Offline operation
+
+Once the u2netp model file (`~/.u2net/u2netp.onnx`) exists on disk, background removal works with no internet connection. Yagua checks for the file at startup and skips the download step if it is already present.
